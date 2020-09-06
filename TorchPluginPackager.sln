@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TorchPluginPackager", "TorchPluginPackager\TorchPluginPackager.csproj", "{F4B1FB82-4695-4831-9491-54FBEC12797A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SamplePlugin", "SamplePlugin\SamplePlugin.csproj", "{BF15198B-5BB0-40E0-A77D-9B5C5E2E8A35}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F4B1FB82-4695-4831-9491-54FBEC12797A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4B1FB82-4695-4831-9491-54FBEC12797A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4B1FB82-4695-4831-9491-54FBEC12797A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4B1FB82-4695-4831-9491-54FBEC12797A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF15198B-5BB0-40E0-A77D-9B5C5E2E8A35}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF15198B-5BB0-40E0-A77D-9B5C5E2E8A35}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF15198B-5BB0-40E0-A77D-9B5C5E2E8A35}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF15198B-5BB0-40E0-A77D-9B5C5E2E8A35}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

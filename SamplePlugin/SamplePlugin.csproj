@@ -1,0 +1,170 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{BF15198B-5BB0-40E0-A77D-9B5C5E2E8A35}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>SamplePlugin</RootNamespace>
+        <AssemblyName>SamplePlugin</AssemblyName>
+        <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>x64</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>x64</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="ICSharpCode.SharpZipLib, Version=1.2.0.246, Culture=neutral, PublicKeyToken=1b03e6acf1164f73">
+          <HintPath>..\packages\SharpZipLib.1.2.0\lib\net45\ICSharpCode.SharpZipLib.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
+        <Reference Include="System" />
+        <Reference Include="System.Core" />
+        <Reference Include="System.Data" />
+        <Reference Include="System.Web" />
+        <Reference Include="System.Xml" />
+        <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed">
+            <HintPath>$(SolutionDir)\TorchBinaries\Newtonsoft.Json.dll</HintPath>
+        </Reference>
+        <Reference Include="NLog, Version=4.0.0.0, Culture=neutral, PublicKeyToken=5120e14c03d0593c">
+            <HintPath>$(SolutionDir)\TorchBinaries\NLog.dll</HintPath>
+        </Reference>
+        <Reference Include="Sandbox.Common, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\Sandbox.Common.dll</HintPath>
+        </Reference>
+        <Reference Include="Sandbox.Game, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\Sandbox.Game.dll</HintPath>
+        </Reference>
+        <Reference Include="Sandbox.Game.XmlSerializers, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\Sandbox.Game.XmlSerializers.dll</HintPath>
+        </Reference>
+        <Reference Include="Sandbox.Graphics, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\Sandbox.Graphics.dll</HintPath>
+        </Reference>
+        <Reference Include="Sandbox.RenderDirect, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\Sandbox.RenderDirect.dll</HintPath>
+        </Reference>
+        <Reference Include="SpaceEngineers.Game, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\SpaceEngineers.Game.dll</HintPath>
+        </Reference>
+        <Reference Include="SpaceEngineers.ObjectBuilders, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\SpaceEngineers.ObjectBuilders.dll</HintPath>
+        </Reference>
+        <Reference Include="SpaceEngineers.ObjectBuilders.XmlSerializers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\SpaceEngineers.ObjectBuilders.XmlSerializers.dll</HintPath>
+        </Reference>
+        <Reference Include="Torch, Version=1.3.1.128, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\TorchBinaries\Torch.dll</HintPath>
+        </Reference>
+        <Reference Include="Torch.API, Version=1.3.1.128, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\TorchBinaries\Torch.API.dll</HintPath>
+        </Reference>
+        <Reference Include="Torch.Server, Version=1.3.1.128, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\TorchBinaries\Torch.Server.exe</HintPath>
+        </Reference>
+        <Reference Include="VRage, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Ansel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Ansel.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Audio, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Audio.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Dedicated, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Dedicated.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Game, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Game.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Game.XmlSerializers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Game.XmlSerializers.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Input, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Input.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Library, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Library.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Math, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Math.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Math.XmlSerializers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Math.XmlSerializers.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.NativeAftermath, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.NativeAftermath.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.NativeWrapper, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.NativeWrapper.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Network, Version=1.0.53.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Network.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Platform.Windows, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Platform.Windows.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.RemoteClient.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.RemoteClient.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Render, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Render.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Render11, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Render11.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Scripting, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Scripting.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.Steam, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.Steam.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.UserInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.UserInterface.dll</HintPath>
+        </Reference>
+        <Reference Include="VRage.XmlSerializers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
+            <HintPath>$(SolutionDir)\VRageBinaries\VRage.XmlSerializers.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="Source\Employee.cs" />
+        <Compile Include="Source\SamplePlugin.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="manifest.xml" />
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="packages.config" />
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+
+</Project>
