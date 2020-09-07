@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using CommandLine;
 using ICSharpCode.SharpZipLib.Checksum;
 using ICSharpCode.SharpZipLib.Zip;
@@ -37,12 +38,12 @@ namespace TorchPluginPackager
             Console.WriteLine($"build: {binDirPath}");
             Console.WriteLine($"references: {string.Join(", ", refDirPaths)}");
 
-            var refFilePaths = new HashSet<string>();
+            var refFilePaths = new Dictionary<string, string>();
             foreach (var refDirPath in refDirPaths)
             foreach (var refFilePath in Directory.GetFiles(refDirPath, "*.dll"))
             {
                 var refFileName = Path.GetFileName(refFilePath);
-                refFilePaths.Add(refFileName);
+                refFilePaths[refFileName] = refFilePath;
             }
 
             var includedFilePaths = new List<string>();
@@ -50,7 +51,9 @@ namespace TorchPluginPackager
             foreach (var binFilePath in binFilePaths)
             {
                 var fileName = Path.GetFileName(binFilePath);
-                var excluded = refFilePaths.Contains(fileName);
+                var excluded = refFilePaths.TryGetValue(fileName, out var filePath);
+                excluded = excluded && IsDllMatch(filePath, binFilePath);
+
                 if (!excluded)
                 {
                     includedFilePaths.Add(binFilePath);
@@ -59,7 +62,7 @@ namespace TorchPluginPackager
                 var includedChar = excluded ? 'x' : 'o';
                 Console.WriteLine($"{includedChar} {fileName}");
             }
-            
+
             includedFilePaths.Add(manifestFilePath);
 
             using (var outStream = new MemoryStream())
@@ -96,6 +99,15 @@ namespace TorchPluginPackager
             }
 
             Console.WriteLine("Done");
+        }
+
+        static bool IsDllMatch(string dllFilePath1, string dllFilePath2)
+        {
+            var assembly1 = AssemblyName.GetAssemblyName(dllFilePath1);
+            var assembly2 = AssemblyName.GetAssemblyName(dllFilePath2);
+            var nameMatch = assembly1.FullName == assembly2.FullName;
+            var versionMatch = assembly1.Version == assembly2.Version;
+            return nameMatch && versionMatch;
         }
     }
 }
