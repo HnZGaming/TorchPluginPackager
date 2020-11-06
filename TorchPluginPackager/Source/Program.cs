@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using CommandLine;
 using ICSharpCode.SharpZipLib.Checksum;
@@ -12,9 +13,9 @@ namespace TorchPluginPackager
     {
         public static void Main(string[] args)
         {
-            var parseArgs = Parser.Default.ParseArguments<ProgramOptions>(args);
-            parseArgs.WithNotParsed(o => OnArgumentsParseFailed(o));
-            parseArgs.WithParsed(o => OnArgumentsParsed(o));
+            Parser.Default.ParseArguments<ProgramOptions>(args)
+                .WithNotParsed(o => OnArgumentsParseFailed(o))
+                .WithParsed(o => OnArgumentsParsed(o));
         }
 
         static void OnArgumentsParseFailed(IEnumerable<Error> errors)
@@ -27,23 +28,35 @@ namespace TorchPluginPackager
 
         static void OnArgumentsParsed(ProgramOptions args)
         {
+            var diagnostics = new List<AssemblyDiagnostic>();
+
             var name = args.Name;
             var manifestFilePath = args.ManifestFilePath;
             var binDirPath = args.BuildPath;
             var refDirPaths = args.ReferencePaths;
             var outputDirPath = args.OutputDirPath; // can be null
+            var exceptNames = new HashSet<string>(args.ExceptNames ?? new string[0]);
 
             Console.WriteLine($"name: {name}");
             Console.WriteLine($"manifest: {manifestFilePath}");
             Console.WriteLine($"build: {binDirPath}");
             Console.WriteLine($"references: {string.Join(", ", refDirPaths)}");
+            Console.WriteLine($"strict version: {args.StrictVersion}");
 
-            var refFilePaths = new Dictionary<string, string>();
+            var refFilePaths = new SetDictionary<string, Version>();
             foreach (var refDirPath in refDirPaths)
             foreach (var refFilePath in Directory.GetFiles(refDirPath, "*.dll"))
             {
                 var refFileName = Path.GetFileName(refFilePath);
-                refFilePaths[refFileName] = refFilePath;
+                try
+                {
+                    var assembly = AssemblyName.GetAssemblyName(refFilePath);
+                    refFilePaths.Add(refFileName, assembly.Version);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Failed to load reference dll '{refFileName}': {e.Message}");
+                }
             }
 
             var includedFilePaths = new List<string>();
@@ -51,16 +64,59 @@ namespace TorchPluginPackager
             foreach (var binFilePath in binFilePaths)
             {
                 var fileName = Path.GetFileName(binFilePath);
-                var excluded = refFilePaths.TryGetValue(fileName, out var filePath);
-                excluded = excluded && IsDllMatch(filePath, binFilePath);
-
-                if (!excluded)
+                if (exceptNames.Contains(fileName))
                 {
-                    includedFilePaths.Add(binFilePath);
+                    diagnostics.Add(new AssemblyDiagnostic
+                    {
+                        AssemblyName = fileName,
+                        Included = false,
+                    });
+
+                    continue;
                 }
 
-                var includedChar = excluded ? 'x' : 'o';
-                Console.WriteLine($"{includedChar} {fileName}");
+                var refAssemblyVersions = new HashSet<Version>(refFilePaths.GetValues(fileName));
+                if (refAssemblyVersions.Any())
+                {
+                    var assemblyName = AssemblyName.GetAssemblyName(binFilePath);
+                    var binAssemblyVersion = assemblyName.Version;
+                    var matchVersion = refAssemblyVersions.Contains(binAssemblyVersion);
+                    var included = !matchVersion && args.StrictVersion;
+
+                    if (included)
+                    {
+                        includedFilePaths.Add(binFilePath);
+                        Console.WriteLine($"Found a reference DLL with the same name & different version: {assemblyName}, " +
+                                          $"[{string.Join(", ", refAssemblyVersions)}] -> {binAssemblyVersion}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Found a reference DLL with the same name & same version: '{assemblyName.Name}', " +
+                                          $"[{string.Join(", ", refAssemblyVersions)}] -> {binAssemblyVersion}");
+                    }
+
+                    diagnostics.Add(new AssemblyDiagnostic
+                    {
+                        AssemblyName = fileName,
+                        ReferenceExisted = true,
+                        Included = included,
+                        VersionMatch = matchVersion,
+                        AssemblyVersion = binAssemblyVersion.ToString(),
+                        ReferenceAssemblyVersion = binAssemblyVersion.ToString(),
+                    });
+                    continue;
+                }
+
+                includedFilePaths.Add(binFilePath);
+
+                diagnostics.Add(new AssemblyDiagnostic
+                {
+                    AssemblyName = fileName,
+                    ReferenceExisted = false,
+                    Included = true,
+                    AssemblyVersion = "",
+                    ReferenceAssemblyVersion = "",
+                });
             }
 
             includedFilePaths.Add(manifestFilePath);
@@ -98,16 +154,18 @@ namespace TorchPluginPackager
                 File.WriteAllBytes(outputFilePath, zipBytes);
             }
 
-            Console.WriteLine("Done");
-        }
+            foreach (var d in AssemblyDiagnostic.Sort(diagnostics))
+            {
+                Console.WriteLine(d);
+            }
 
-        static bool IsDllMatch(string dllFilePath1, string dllFilePath2)
-        {
-            var assembly1 = AssemblyName.GetAssemblyName(dllFilePath1);
-            var assembly2 = AssemblyName.GetAssemblyName(dllFilePath2);
-            var nameMatch = assembly1.FullName == assembly2.FullName;
-            var versionMatch = assembly1.Version == assembly2.Version;
-            return nameMatch && versionMatch;
+            foreach (var includedFilePath in includedFilePaths)
+            {
+                var includedFileName = Path.GetFileName(includedFilePath);
+                Console.WriteLine($"included: {includedFileName}");
+            }
+
+            Console.WriteLine("Done");
         }
     }
 }

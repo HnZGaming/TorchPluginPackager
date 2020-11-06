@@ -19,5 +19,11 @@ namespace TorchPluginPackager
 
         [Option('o', "out", Required = true, HelpText = "Output directory (Plugins) path")]
         public string OutputDirPath { get; set; }
+
+        [Option('s', "strict-version", Required = false, Default = true, HelpText = "Include name-conflicting DLLs with different versions")]
+        public bool StrictVersion { get; set; }
+        
+        [Option('e', "except", Required = false, HelpText = "DLL names that should be excluded")]
+        public IEnumerable<string> ExceptNames { get; set; }
     }
 }
