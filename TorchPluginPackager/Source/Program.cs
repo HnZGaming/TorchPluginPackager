@@ -32,14 +32,14 @@ namespace TorchPluginPackager
 
             var name = args.Name;
             var manifestFilePath = args.ManifestFilePath;
-            var binDirPath = args.BuildPath;
-            var refDirPaths = args.ReferencePaths;
+            var binDirPaths = args.BuildPaths.ToArray();
+            var refDirPaths = args.ReferencePaths.ToArray();
             var outputDirPath = args.OutputDirPath; // can be null
             var exceptNames = new HashSet<string>(args.ExceptNames ?? new string[0]);
 
             Console.WriteLine($"name: {name}");
             Console.WriteLine($"manifest: {manifestFilePath}");
-            Console.WriteLine($"build: {binDirPath}");
+            Console.WriteLine($"builds: {string.Join(", ", binDirPaths)}");
             Console.WriteLine($"references: {string.Join(", ", refDirPaths)}");
             Console.WriteLine($"strict version: {args.StrictVersion}");
 
@@ -60,7 +60,7 @@ namespace TorchPluginPackager
             }
 
             var includedFilePaths = new List<string>();
-            var binFilePaths = Directory.GetFiles(binDirPath, "*.dll");
+            var binFilePaths = binDirPaths.SelectMany(p => Directory.GetFiles(p, "*.dll"));
             foreach (var binFilePath in binFilePaths)
             {
                 var fileName = Path.GetFileName(binFilePath);
@@ -120,6 +120,13 @@ namespace TorchPluginPackager
             }
 
             includedFilePaths.Add(manifestFilePath);
+
+            var mainAssemblyPath = Path.Combine(binDirPaths[0], $"{args.Name}.dll");
+            var mainAssembly = AssemblyName.GetAssemblyName(mainAssemblyPath);
+            var mainAssemblyVersion = $"v{mainAssembly.Version}";
+            var manifestUpdater = new ManifestUpdater(manifestFilePath);
+            manifestUpdater.SetVersion(mainAssemblyVersion);
+            manifestUpdater.Write();
 
             using (var outStream = new MemoryStream())
             using (var zipper = new ZipOutputStream(outStream))

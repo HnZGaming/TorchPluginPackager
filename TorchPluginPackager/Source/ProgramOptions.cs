@@ -5,14 +5,14 @@ namespace TorchPluginPackager
 {
     public sealed class ProgramOptions
     {
-        [Option('n', "name", HelpText = "Result Zip file name")]
+        [Option('n', "name", HelpText = "Assembly name")]
         public string Name { get; set; }
 
         [Option('m', "manifest", Required = true, HelpText = "Plugin manifest file path")]
         public string ManifestFilePath { get; set; }
 
-        [Option('b', "build", Required = true, HelpText = "Build directory path")]
-        public string BuildPath { get; set; }
+        [Option('b', "builds", Required = true, HelpText = "Build directory paths")]
+        public IEnumerable<string> BuildPaths { get; set; }
 
         [Option('r', "references", Required = true, HelpText = "Reference directory path(s)")]
         public IEnumerable<string> ReferencePaths { get; set; }
