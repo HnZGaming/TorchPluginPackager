@@ -157,7 +157,7 @@ namespace TorchPluginPackager
                 zipper.Flush();
 
                 var zipBytes = outStream.ToArray();
-                var outputFilePath = Path.Combine(outputDirPath, $"{name}.zip");
+                var outputFilePath = Path.Combine(outputDirPath, $"{name}-{mainAssemblyVersion}.zip");
                 File.WriteAllBytes(outputFilePath, zipBytes);
             }
 
