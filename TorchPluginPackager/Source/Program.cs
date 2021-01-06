@@ -86,13 +86,15 @@ namespace TorchPluginPackager
                     if (included)
                     {
                         includedFilePaths.Add(binFilePath);
-                        Console.WriteLine($"Found a reference DLL with the same name & different version: {assemblyName}, " +
-                                          $"[{string.Join(", ", refAssemblyVersions)}] -> {binAssemblyVersion}");
+                        Console.WriteLine(
+                            $"Found a reference DLL with the same name & different version: {assemblyName}, " +
+                            $"[{string.Join(", ", refAssemblyVersions)}] -> {binAssemblyVersion}");
                     }
                     else
                     {
-                        Console.WriteLine($"Found a reference DLL with the same name & same version: '{assemblyName.Name}', " +
-                                          $"[{string.Join(", ", refAssemblyVersions)}] -> {binAssemblyVersion}");
+                        Console.WriteLine(
+                            $"Found a reference DLL with the same name & same version: '{assemblyName.Name}', " +
+                            $"[{string.Join(", ", refAssemblyVersions)}] -> {binAssemblyVersion}");
                     }
 
                     diagnostics.Add(new AssemblyDiagnostic
@@ -127,6 +129,14 @@ namespace TorchPluginPackager
             var manifestUpdater = new ManifestUpdater(manifestFilePath);
             manifestUpdater.SetVersion(mainAssemblyVersion);
             manifestUpdater.Write();
+
+            foreach (var existingPluginFilePath in Directory.GetFiles(outputDirPath))
+            {
+                if (Path.GetFileName(existingPluginFilePath).StartsWith(name))
+                {
+                    File.Delete(existingPluginFilePath);
+                }
+            }
 
             using (var outStream = new MemoryStream())
             using (var zipper = new ZipOutputStream(outStream))
