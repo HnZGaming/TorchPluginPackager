@@ -45,17 +45,23 @@ namespace TorchPluginPackager
 
             var refFilePaths = new SetDictionary<string, Version>();
             foreach (var refDirPath in refDirPaths)
-            foreach (var refFilePath in Directory.GetFiles(refDirPath, "*.dll"))
             {
-                var refFileName = Path.GetFileName(refFilePath);
-                try
+                Console.WriteLine(refDirPath);
+
+                foreach (var refFilePath in Directory.GetFiles(refDirPath, "*.dll"))
                 {
-                    var assembly = AssemblyName.GetAssemblyName(refFilePath);
-                    refFilePaths.Add(refFileName, assembly.Version);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine($"Failed to load reference dll '{refFileName}': {e.Message}");
+                    Console.WriteLine(refFilePath);
+
+                    var refFileName = Path.GetFileName(refFilePath);
+                    try
+                    {
+                        var assembly = AssemblyName.GetAssemblyName(refFilePath);
+                        refFilePaths.Add(refFileName, assembly.Version);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Failed to load reference dll '{refFileName}': {e.Message}");
+                    }
                 }
             }
 
@@ -110,6 +116,19 @@ namespace TorchPluginPackager
                 }
 
                 includedFilePaths.Add(binFilePath);
+                Console.WriteLine($"Including {binFilePath}");
+
+                // add the PDB file corresponding to the DLL (if any)
+                var pdbFilePath = Path.ChangeExtension(binFilePath, ".pdb");
+                if (File.Exists(pdbFilePath))
+                {
+                    includedFilePaths.Add(pdbFilePath);
+                    Console.WriteLine("Found PDB corresponding to the DLL file");
+                }
+                else
+                {
+                    Console.WriteLine($"PDB file not found: {pdbFilePath}");
+                }
 
                 diagnostics.Add(new AssemblyDiagnostic
                 {
@@ -130,12 +149,9 @@ namespace TorchPluginPackager
             manifestUpdater.SetVersion(mainAssemblyVersion);
             manifestUpdater.Write();
 
-            foreach (var existingPluginFilePath in Directory.GetFiles(outputDirPath))
+            foreach (var oldZip in Directory.GetFiles(outputDirPath, $"{name}*.zip"))
             {
-                if (Path.GetFileName(existingPluginFilePath).StartsWith(name))
-                {
-                    File.Delete(existingPluginFilePath);
-                }
+                File.Delete(oldZip);
             }
 
             using (var outStream = new MemoryStream())
@@ -169,6 +185,7 @@ namespace TorchPluginPackager
                 var zipBytes = outStream.ToArray();
                 var outputFilePath = Path.Combine(outputDirPath, $"{name}-{mainAssemblyVersion}.zip");
                 File.WriteAllBytes(outputFilePath, zipBytes);
+                Console.WriteLine($"output: {outputFilePath}");
             }
 
             foreach (var d in AssemblyDiagnostic.Sort(diagnostics))
