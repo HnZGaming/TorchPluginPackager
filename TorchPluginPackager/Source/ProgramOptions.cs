@@ -17,8 +17,8 @@ namespace TorchPluginPackager
         [Option('r', "references", Required = true, HelpText = "Reference directory path(s)")]
         public IEnumerable<string> ReferencePaths { get; set; }
 
-        [Option('o', "out", Required = true, HelpText = "Output directory (Plugins) path")]
-        public string OutputDirPath { get; set; }
+        [Option('o', "out", Required = true, HelpText = "Output directory (Plugins) paths")]
+        public IEnumerable<string> OutputDirPaths { get; set; }
 
         [Option('s', "strict-version", Required = false, Default = true, HelpText = "Include name-conflicting DLLs with different versions")]
         public bool StrictVersion { get; set; }

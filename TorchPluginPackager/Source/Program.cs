@@ -34,13 +34,14 @@ namespace TorchPluginPackager
             var manifestFilePath = args.ManifestFilePath;
             var binDirPaths = args.BuildPaths.ToArray();
             var refDirPaths = args.ReferencePaths.ToArray();
-            var outputDirPath = args.OutputDirPath; // can be null
-            var exceptNames = new HashSet<string>(args.ExceptNames ?? new string[0]);
+            var outputDirPaths = args.OutputDirPaths; // can be empty
+            var exceptNames = new HashSet<string>(args.ExceptNames ?? Array.Empty<string>());
 
             Console.WriteLine($"name: {name}");
             Console.WriteLine($"manifest: {manifestFilePath}");
             Console.WriteLine($"builds: {string.Join(", ", binDirPaths)}");
             Console.WriteLine($"references: {string.Join(", ", refDirPaths)}");
+            Console.WriteLine($"output paths: {string.Join(", ", outputDirPaths)}");
             Console.WriteLine($"strict version: {args.StrictVersion}");
 
             var refFilePaths = new SetDictionary<string, Version>();
@@ -130,43 +131,45 @@ namespace TorchPluginPackager
             manifestUpdater.SetVersion(mainAssemblyVersion);
             manifestUpdater.Write();
 
-            foreach (var existingPluginFilePath in Directory.GetFiles(outputDirPath))
+            using var outStream = new MemoryStream();
+            using var zipper = new ZipOutputStream(outStream);
+            zipper.UseZip64 = UseZip64.Off;
+            var crc = new Crc32();
+
+            foreach (var binFilePath in includedFilePaths)
             {
-                if (Path.GetFileName(existingPluginFilePath).StartsWith(name))
+                var file = File.ReadAllBytes(binFilePath);
+                var fileName = Path.GetFileName(binFilePath);
+
+                crc.Reset();
+                crc.Update(file);
+
+                var zipEntry = new ZipEntry(fileName)
                 {
-                    File.Delete(existingPluginFilePath);
-                }
+                    DateTime = DateTime.Now,
+                    Size = file.Length,
+                    Crc = crc.Value,
+                };
+
+                zipper.PutNextEntry(zipEntry);
+                zipper.Write(file, 0, file.Length);
             }
 
-            using (var outStream = new MemoryStream())
-            using (var zipper = new ZipOutputStream(outStream))
+            zipper.Finish();
+            zipper.Flush();
+
+            var zipBytes = outStream.ToArray();
+
+            foreach (var outputDirPath in outputDirPaths)
             {
-                zipper.UseZip64 = UseZip64.Off;
-                var crc = new Crc32();
-
-                foreach (var binFilePath in includedFilePaths)
+                foreach (var existingPluginFilePath in Directory.GetFiles(outputDirPath))
                 {
-                    var file = File.ReadAllBytes(binFilePath);
-                    var fileName = Path.GetFileName(binFilePath);
-
-                    crc.Reset();
-                    crc.Update(file);
-
-                    var zipEntry = new ZipEntry(fileName)
+                    if (Path.GetFileName(existingPluginFilePath).StartsWith(name))
                     {
-                        DateTime = DateTime.Now,
-                        Size = file.Length,
-                        Crc = crc.Value,
-                    };
-
-                    zipper.PutNextEntry(zipEntry);
-                    zipper.Write(file, 0, file.Length);
+                        File.Delete(existingPluginFilePath);
+                    }
                 }
 
-                zipper.Finish();
-                zipper.Flush();
-
-                var zipBytes = outStream.ToArray();
                 var outputFilePath = Path.Combine(outputDirPath, $"{name}-{mainAssemblyVersion}.zip");
                 File.WriteAllBytes(outputFilePath, zipBytes);
             }
