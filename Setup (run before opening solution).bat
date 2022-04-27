@@ -2,7 +2,7 @@
 
 @echo off
 cd %~dp0
-mklink /J GameBinaries "C:/Torch/server0/DedicatedServer64"
+mklink /J GameBinaries "C:/torch-server/DedicatedServer64"
 if errorlevel 1 goto Error
 echo Done!
 goto End
@@ -12,7 +12,7 @@ goto EndFinal
 :End
 
 cd %~dp0
-mklink /J TorchBinaries "C:/Torch/server0"
+mklink /J TorchBinaries "C:/torch-server"
 if errorlevel 1 goto Error
 echo Done! You can now open the Torch solution without issue.
 goto EndFinal
